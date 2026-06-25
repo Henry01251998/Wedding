@@ -35,7 +35,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             position: sticky; top: 0; z-index: 100;
         }
-        header h1 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 24px; letter-spacing: 2px; }
+        header h1 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 24px; letter-spacing: 2px; cursor: pointer; }
         header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
 
         .search-container { padding: 15px; background: white; }
@@ -43,7 +43,7 @@
         .search-box input { border: none; background: transparent; padding: 10px; flex-grow: 1; font-size: 16px; outline: none; }
 
         .mode-switch { display: flex; justify-content: center; padding: 10px; background: #fff; border-bottom: 1px solid #ddd; }
-        .mode-btn { padding: 8px 10px; margin: 0 4px; border-radius: 20px; border: 1px solid var(--primary-color); background: white; color: var(--primary-color); font-weight: bold; font-size: 14px; flex-grow: 1; text-align: center; }
+        .mode-btn { padding: 8px 10px; margin: 0 4px; border-radius: 20px; border: 1px solid var(--primary-color); background: white; color: var(--primary-color); font-weight: bold; font-size: 14px; flex-grow: 1; text-align: center; cursor: pointer; }
         .mode-btn.active { background: var(--primary-color); color: white; }
 
         /* 平面圖 */
@@ -62,7 +62,7 @@
         .t-wrap.main-table .t-circle { width: 48px; height: 48px; font-size: 22px; border-width: 3px; }
         .t-text { font-size: 11px; margin-top: 4px; text-align: center; white-space: nowrap; }
 
-        /* 全新手機版優化 Guest Row */
+        /* 手機版優化 Guest Row */
         .guest-row { display: flex; flex-direction: column; padding: 15px 5px; border-bottom: 1px solid #eaeaea; }
         .guest-info { display: flex; flex-direction: column; width: 100%; margin-bottom: 12px; }
         .guest-name-wrap { display: flex; justify-content: space-between; align-items: center; }
@@ -96,7 +96,7 @@
         .mini-card.gift-card { border-top-color: var(--status-gift); }
         .stat-val { font-size: 26px; font-weight: bold; margin-top: 5px; }
 
-        #config-modal { position: fixed; top: 20%; left: 10%; width: 80%; background: white; border: 1px solid #ccc; padding: 20px; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); border-radius: 10px; }
+        #config-modal { position: fixed; top: 15%; left: 10%; width: 80%; background: white; border: 1px solid #ccc; padding: 20px; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -122,7 +122,6 @@
     <button class="mode-btn" id="btn-list" onclick="switchMode('list')">預備位調度</button>
 </div>
 
-<!-- 分頁 1：會場地圖 -->
 <div id="map-view">
     <div class="floor-plan">
         <div class="stage-box"></div><div class="red-carpet"></div><div class="carpet-arrow"><i class="fa-solid fa-arrow-up"></i></div>
@@ -159,7 +158,6 @@
     </div>
 </div>
 
-<!-- 分頁 2：總召統計 -->
 <div id="stats-view">
     <div class="stats-card">
         <h3 style="margin:0; color:var(--primary-color);">賓客總到場率</h3>
@@ -185,10 +183,8 @@
     </div>
 </div>
 
-<!-- 分頁 3：動態搜尋 / 預備位調度 -->
 <div id="search-results"></div>
 
-<!-- 桌次彈出視窗 -->
 <div id="guest-popup">
     <div class="popup-content">
         <div class="popup-header">
@@ -200,11 +196,14 @@
 </div>
 
 <div id="config-modal">
-    <h3>系統設定</h3>
-    <p>請貼入 Firebase Database URL:</p>
-    <input type="text" id="fb-url-input" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;" placeholder="https://...">
-    <button onclick="saveConfig()" style="padding: 10px; background: #8c7b6d; color: white; border: none; border-radius: 5px; cursor: pointer;">儲存並重新載入</button>
-    <button onclick="document.getElementById('config-modal').style.display='none'" style="padding: 10px; margin-left: 10px; cursor: pointer;">取消</button>
+    <h3>系統設定後台</h3>
+    <p>Firebase Database URL:</p>
+    <input type="text" id="fb-url-input" style="width: 100%; padding: 10px; margin-bottom: 12px; box-sizing: border-box;" placeholder="https://...">
+    <button onclick="saveConfig()" style="padding: 10px 15px; background: #8c7b6d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">儲存並重新載入</button>
+    <button onclick="document.getElementById('config-modal').style.display='none'" style="padding: 10px 15px; margin-left: 10px; cursor: pointer;">取消</button>
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+    <p style="color:#d32f2f; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-triangle-exclamation"></i> 宴會正式開始前清空測試資料專區：</p>
+    <button onclick="clearDatabase()" style="padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-trash-can"></i> ⚠️ 一鍵清空所有報到與禮金紀錄</button>
 </div>
 
 <script>
@@ -257,7 +256,6 @@
             displayName = `${rawName} (攜伴${nameCountMap[rawName] > 2 ? ' ' + (nameCountMap[rawName]-1) : ''})`;
         }
 
-        // 精準計算「有兩個」的需求量
         if (giftDesc.includes("兩") || giftDesc.includes("2")) {
             totalExpectedGift += 2;
         } else if (giftDesc !== "") {
@@ -277,7 +275,7 @@
         guests.push({ name: `預備位 2`, searchName: "預備位", table: i, hasGift: false, giftDetails: "", id: `reserve_${i}_2`, isReserve: true });
     }
 
-    // Firebase 核心
+    // Firebase 連線
     let db;
     let rtdbUrl = localStorage.getItem('wedding_rtdb_url') || 'https://my-wedding-a0c99-default-rtdb.asia-southeast1.firebasedatabase.app/';
 
@@ -296,21 +294,19 @@
             localStates = snapshot.val() || {};
             document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-cloud-check" style="color:#4caf50;"></i> 資料已同步';
             calculateStats();
-            renderCurrentView(); // 收到新資料，觸發當前畫面重繪
+            renderCurrentView(); 
         });
     }
 
-    // 更新狀態
     window.toggleStatus = function(id, type) {
         const current = localStates[id] ? localStates[id][type] : false;
         db.ref('attendance/' + id).update({ [type]: !current });
     }
 
-    // 動態產出統一的 Row HTML (完美適用手機螢幕)
+    // 手機排版優化 HTML 生成器
     function createGuestRowHtml(g, showTableBadge = false) {
         const state = localStates[g.id] || {};
         
-        // 隱藏沒有喜餅的按鈕，維持版面彈性對齊
         const giftBtn = g.hasGift 
             ? `<button class="btn-toggle ${state.gift ? 'gift' : ''}" onclick="toggleStatus('${g.id}', 'gift')">領餅</button>`
             : `<button class="btn-toggle" style="visibility:hidden; pointer-events:none;">領餅</button>`;
@@ -336,17 +332,19 @@
         `;
     }
 
-    // 計算總召頁面數據
+    // 計算總召頁面數據（修正統計 bug 專區）
     function calculateStats() {
         const realGuests = guests.filter(g => !g.isReserve);
         const totalExpect = realGuests.length;
         
         let checkedCount = 0; let moneyCount = 0; let giftCount = 0;
 
-        Object.keys(localStates).forEach(id => {
-            if (localStates[id].checked) checkedCount++; // 現在會把預備位的報到算入總到場率中
-            if (localStates[id].money) moneyCount++;
-            if (localStates[id].gift) giftCount++;
+        // 【重大修正】改為遍歷目前定義好的賓客陣列，排除資料庫中不相干的舊版格式歷史 Key
+        guests.forEach(g => {
+            const state = localStates[g.id] || {};
+            if (state.checked) checkedCount++;
+            if (state.money) moneyCount++;
+            if (state.gift) giftCount++;
         });
 
         const percent = totalExpect > 0 ? ((checkedCount / totalExpect) * 100).toFixed(1) : 0;
@@ -422,7 +420,7 @@
         renderSearchResults(key);
     });
 
-    // 維持畫面即時更新
+    // 重新繪製當前視窗，確保動態重新整理時不影響使用者當前的搜尋或彈跳視窗
     function renderCurrentView() {
         if (document.getElementById('guest-popup').style.display === 'block') {
             const title = document.getElementById('popup-title').innerText;
@@ -431,13 +429,13 @@
         }
         const searchVal = document.getElementById('guest-search').value.trim();
         if (searchVal !== "") {
-            renderSearchResults(searchVal); // 保證搜尋畫面按鈕即時變色
+            renderSearchResults(searchVal); 
         } else if (document.getElementById('btn-list').classList.contains('active')) {
             showReserveList();
         }
     }
 
-    // 隱藏設定後台
+    // 隱藏設定後台與一鍵清空功能
     let clickCount = 0;
     document.getElementById('title-main').addEventListener('click', () => {
         clickCount++;
@@ -453,6 +451,20 @@
         const newUrl = document.getElementById('fb-url-input').value.trim();
         localStorage.setItem('wedding_rtdb_url', newUrl);
         location.reload();
+    }
+
+    // 新增：一鍵清空 Firebase 資料庫
+    window.clearDatabase = function() {
+        if (confirm("確定要清空 Firebase 資料庫內所有的報到、禮金與領餅紀錄嗎？此操作將會徹底歸零，無法復原！")) {
+            db.ref('attendance').remove()
+                .then(() => {
+                    alert("資料庫已成功清空！所有數據已重設歸零。");
+                    document.getElementById('config-modal').style.display = 'none';
+                })
+                .catch(err => {
+                    alert("清空失敗：" + err.message);
+                });
+        }
     }
 
     // 啟動系統
