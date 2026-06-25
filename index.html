@@ -75,28 +75,6 @@
         .btn-toggle.checked { background: var(--status-checked); color: white; border-color: var(--status-checked); }
         .btn-toggle.money { background: var(--status-money); color: white; border-color: var(--status-money); }
         .btn-toggle.gift { background: var(--status-gift); color: white; border-color: var(--status-gift); }
-
-        /* 彈出視窗 */
-        #guest-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 1000; }
-        .popup-content { position: absolute; bottom: 0; width: 100%; background: white; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .popup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--secondary-color); padding-bottom: 15px; margin-bottom: 5px; position: sticky; top: 0; background: white; z-index: 10; }
-        .close-btn { font-size: 26px; color: #999; cursor: pointer; }
-        
-        #search-results { display: none; padding: 15px; }
-
-        /* 總召統計專區 */
-        #stats-view { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
-        .stats-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
-        .progress-container { background: #eee; border-radius: 10px; height: 22px; width: 100%; margin: 15px 0; position: relative; overflow: hidden; }
-        .progress-bar { background: var(--status-checked); height: 100%; width: 0%; transition: 0.5s ease; }
-        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; line-height: 22px; font-size: 13px; font-weight: bold; color: #333; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .mini-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid var(--primary-color); }
-        .mini-card.money-card { border-top-color: var(--status-money); }
-        .mini-card.gift-card { border-top-color: var(--status-gift); }
-        .stat-val { font-size: 26px; font-weight: bold; margin-top: 5px; }
-
-        #config-modal { position: fixed; top: 15%; left: 10%; width: 80%; background: white; border: 1px solid #ccc; padding: 20px; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -168,7 +146,6 @@
         <div style="font-size: 14px; color:#666;">
             總報到人數：<span id="stat-checked-count" style="font-weight:bold; color:var(--status-checked);">0</span> / <span id="stat-total-expect">0</span> 人
         </div>
-        <div style="font-size: 11px; color:#aaa; margin-top:4px;">(註：數據包含臨時啟用的預備位人數)</div>
     </div>
     <div class="stats-grid">
         <div class="mini-card money-card">
@@ -202,14 +179,14 @@
     <button onclick="saveConfig()" style="padding: 10px 15px; background: #8c7b6d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">儲存並重新載入</button>
     <button onclick="document.getElementById('config-modal').style.display='none'" style="padding: 10px 15px; margin-left: 10px; cursor: pointer;">取消</button>
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-    <p style="color:#d32f2f; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-triangle-exclamation"></i> 宴會正式開始前清空測試資料專區：</p>
-    <button onclick="clearDatabase()" style="padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-trash-can"></i> ⚠️ 一鍵清空所有報到與禮金紀錄</button>
+    <p style="color:#d32f2f; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-triangle-exclamation"></i> 正式啟用前清空測試資料專區：</p>
+    <button onclick="clearDatabase()" style="padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-trash-can"></i> 一鍵清空所有報到與禮金紀錄</button>
 </div>
 
 <script>
-    // 原始完整名單 (已將李玉涵更新為三個喜餅)
+    // 原始完整名單
     const rawInput = [
-        ["許育豪","1 主桌",""],["李詩文","1 主桌",""],["許緩文","1 主桌",""],["蔡幸秀","1 主桌",""],["李松青","1 主桌",""],["鄒梅春","1 主桌",""],["李松山","1 主桌",""],["簡鸞瑤","1 主桌",""],["林長興","1 主桌",""],["李玉珍","1 主桌",""],["蔡順發","1 主桌",""],["許世傑","1 主桌",""],
+        ["許育豪","1 主桌",""],["李詩文","1 主桌",""],["許緩文","1 主桌",""],["蔡幸秀","1 主桌",""],["李松青","1 主桌",""],["鄒梅春","1 主桌",""],["李松山","1 主桌",""],["聯鸞瑤","1 主桌",""],["林長興","1 主桌",""],["李玉珍","1 主桌",""],["蔡順發","1 主桌",""],["許世傑","1 主桌",""],
         ["鄒三德","2",""],["楊彩鑾","2",""],["鄒詠如","2",""],["鄒詠如","2",""],["鄒詠如","2",""],["鄒淨如","2",""],["鄒淨如","2",""],["鄒淨如","2",""],["李亭誼","2",""],["李奕龍","2",""],["林雨萱","2",""],["紀而謙","2",""],
         ["翁仲仁","3","有"],["翁仲仁","3",""],["翁仲仁","3",""],["翁仲仁","3",""],["鄭澄懋","3","有"],["鄭澄懋","3",""],["張賢鋒","3","有"],["劉世明","3","有"],["劉世明","3",""],["鍾承翰","3","有"],["鍾承翰","3",""],["蔡東翰","3","有"],["蔡東翰","3",""],
         ["陳秀蘭","4","有"],["王淑蓉","4","有"],["林素玉","4","有"],["施惠玲","4","有"],["鄭淑利","4","有"],["涂依辰","4","有"],["朱大同","4","有"],["朱大同","4",""],["崔重基","4","有"],["顏妙容","4",""],
@@ -241,7 +218,6 @@
     const nameCountMap = {}; 
     let totalExpectedGift = 0;
 
-    // 解析名單資料
     rawInput.forEach((item, index) => {
         const rawName = item[0].trim();
         const tableNum = parseInt(item[1]);
@@ -255,7 +231,6 @@
             displayName = `${rawName} (攜伴${nameCountMap[rawName] > 2 ? ' ' + (nameCountMap[rawName]-1) : ''})`;
         }
 
-        // 喜餅計數邏輯 (支援動態識別三/兩/個數)
         if (giftDesc.includes("三") || giftDesc.includes("3")) {
             totalExpectedGift += 3;
         } else if (giftDesc.includes("兩") || giftDesc.includes("2")) {
@@ -271,13 +246,11 @@
         });
     });
 
-    // 每桌加入 2 個預備位
     for(let i=1; i<=28; i++) {
         guests.push({ name: `預備位 1`, searchName: "預備位", table: i, hasGift: false, giftDetails: "", id: `reserve_${i}_1`, isReserve: true });
         guests.push({ name: `預備位 2`, searchName: "預備位", table: i, hasGift: false, giftDetails: "", id: `reserve_${i}_2`, isReserve: true });
     }
 
-    // Firebase 連線
     let db;
     let rtdbUrl = localStorage.getItem('wedding_rtdb_url') || 'https://my-wedding-a0c99-default-rtdb.asia-southeast1.firebasedatabase.app/';
 
@@ -305,10 +278,8 @@
         db.ref('attendance/' + id).update({ [type]: !current });
     }
 
-    // 手機版優化 HTML 生成器
     function createGuestRowHtml(g, showTableBadge = false) {
         const state = localStates[g.id] || {};
-        
         const giftBtn = g.hasGift 
             ? `<button class="btn-toggle ${state.gift ? 'gift' : ''}" onclick="toggleStatus('${g.id}', 'gift')">領餅</button>`
             : `<button class="btn-toggle" style="visibility:hidden; pointer-events:none;">領餅</button>`;
@@ -334,7 +305,7 @@
         `;
     }
 
-    // 計算總召頁面數據
+    // 已修正：點擊領餅時，依據賓客個別的喜餅分配數量進行動態加總
     function calculateStats() {
         const realGuests = guests.filter(g => !g.isReserve);
         const totalExpect = realGuests.length;
@@ -345,7 +316,17 @@
             const state = localStates[g.id] || {};
             if (state.checked) checkedCount++;
             if (state.money) moneyCount++;
-            if (state.gift) giftCount++;
+            
+            // 如果該名賓客被勾選了「領餅」，則動態判定該增加幾份
+            if (state.gift) {
+                if (g.giftDetails.includes("三") || g.giftDetails.includes("3")) {
+                    giftCount += 3;
+                } else if (g.giftDetails.includes("兩") || g.giftDetails.includes("2")) {
+                    giftCount += 2;
+                } else {
+                    giftCount += 1;
+                }
+            }
         });
 
         const percent = totalExpect > 0 ? ((checkedCount / totalExpect) * 100).toFixed(1) : 0;
@@ -358,7 +339,6 @@
         document.getElementById('stat-gift-total').innerText = totalExpectedGift;
     }
 
-    // 介面控制邏輯
     window.openTable = function(num) {
         document.getElementById('popup-title').innerText = num === 1 ? "主桌" : `第 ${num} 桌`;
         const container = document.getElementById('guest-list-container');
@@ -435,7 +415,6 @@
         }
     }
 
-    // 隱藏設定後台與一鍵清空功能
     let clickCount = 0;
     document.getElementById('title-main').addEventListener('click', () => {
         clickCount++;
@@ -466,7 +445,6 @@
         }
     }
 
-    // 啟動系統
     initFirebase();
 </script>
 
