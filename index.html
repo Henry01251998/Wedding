@@ -75,6 +75,28 @@
         .btn-toggle.checked { background: var(--status-checked); color: white; border-color: var(--status-checked); }
         .btn-toggle.money { background: var(--status-money); color: white; border-color: var(--status-money); }
         .btn-toggle.gift { background: var(--status-gift); color: white; border-color: var(--status-gift); }
+
+        /* 彈出視窗 */
+        #guest-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 1000; }
+        .popup-content { position: absolute; bottom: 0; width: 100%; background: white; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--secondary-color); padding-bottom: 15px; margin-bottom: 5px; position: sticky; top: 0; background: white; z-index: 10; }
+        .close-btn { font-size: 26px; color: #999; cursor: pointer; }
+        
+        #search-results { display: none; padding: 15px; }
+
+        /* 總召統計專區 */
+        #stats-view { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .stats-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
+        .progress-container { background: #eee; border-radius: 10px; height: 22px; width: 100%; margin: 15px 0; position: relative; overflow: hidden; }
+        .progress-bar { background: var(--status-checked); height: 100%; width: 0%; transition: 0.5s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; line-height: 22px; font-size: 13px; font-weight: bold; color: #333; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mini-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid var(--primary-color); }
+        .mini-card.money-card { border-top-color: var(--status-money); }
+        .mini-card.gift-card { border-top-color: var(--status-gift); }
+        .stat-val { font-size: 26px; font-weight: bold; margin-top: 5px; }
+
+        #config-modal { position: fixed; top: 15%; left: 10%; width: 80%; background: white; border: 1px solid #ccc; padding: 20px; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -180,13 +202,13 @@
     <button onclick="document.getElementById('config-modal').style.display='none'" style="padding: 10px 15px; margin-left: 10px; cursor: pointer;">取消</button>
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
     <p style="color:#d32f2f; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;"><i class="fa-solid fa-triangle-exclamation"></i> 正式啟用前清空測試資料專區：</p>
-    <button onclick="clearDatabase()" style="padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-trash-can"></i> 一鍵清空所有報到與禮金紀錄</button>
+    <button onclick="clearDatabase()" style="padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px;">一鍵清空所有報到與禮金紀錄</button>
 </div>
 
 <script>
     // 原始完整名單
     const rawInput = [
-        ["許育豪","1 主桌",""],["李詩文","1 主桌",""],["許緩文","1 主桌",""],["蔡幸秀","1 主桌",""],["李松青","1 主桌",""],["鄒梅春","1 主桌",""],["李松山","1 主桌",""],["聯鸞瑤","1 主桌",""],["林長興","1 主桌",""],["李玉珍","1 主桌",""],["蔡順發","1 主桌",""],["許世傑","1 主桌",""],
+        ["許育豪","1 主桌",""],["李詩文","1 主桌",""],["許緩文","1 主桌",""],["蔡幸秀","1 主桌",""],["李松青","1 主桌",""],["鄒梅春","1 主桌",""],["李松山","1 主桌",""],["簡鸞瑤","1 主桌",""],["林長興","1 主桌",""],["李玉珍","1 主桌",""],["蔡順發","1 主桌",""],["許世傑","1 主桌",""],
         ["鄒三德","2",""],["楊彩鑾","2",""],["鄒詠如","2",""],["鄒詠如","2",""],["鄒詠如","2",""],["鄒淨如","2",""],["鄒淨如","2",""],["鄒淨如","2",""],["李亭誼","2",""],["李奕龍","2",""],["林雨萱","2",""],["紀而謙","2",""],
         ["翁仲仁","3","有"],["翁仲仁","3",""],["翁仲仁","3",""],["翁仲仁","3",""],["鄭澄懋","3","有"],["鄭澄懋","3",""],["張賢鋒","3","有"],["劉世明","3","有"],["劉世明","3",""],["鍾承翰","3","有"],["鍾承翰","3",""],["蔡東翰","3","有"],["蔡東翰","3",""],
         ["陳秀蘭","4","有"],["王淑蓉","4","有"],["林素玉","4","有"],["施惠玲","4","有"],["鄭淑利","4","有"],["涂依辰","4","有"],["朱大同","4","有"],["朱大同","4",""],["崔重基","4","有"],["顏妙容","4",""],
@@ -202,7 +224,7 @@
         ["朱德明","15","有兩個"],["王志信","15","有"],["王富民","15",""],["王富民","15",""],["王富民","15",""],["周雍倫","15",""],["周雍倫","15",""],["李維釗","15",""],["賴奕翔","15",""],["鄧智軒","15",""],
         ["黃郁琇","16","有"],["陳芝穎","16",""],["張耀元","16","有"],["楊大慶","16",""],["高敏","16","有"],["王芊藺","16",""],["莊雅竹","16",""],["梅可葳","16",""],["姚皓倫","16",""],["姚皓倫","16",""],
         ["洪煜敦","17",""],["高肇亨","17",""],["郭紘成","17",""],["柯泓睿","17","有"],["張涵","17",""],["謝士博","17",""],["李盛文","17",""],["劉子瑄","17",""],["顏世儒","17",""],["姚雅馨","17",""],
-        ["林恒劭","12",""],["王姿云","12",""],["黃昱碩","18",""],["陳晴琪","18",""],["賴語新","18","有"],["吳欣璇","18",""],["張庭瑋","18",""],["鍾典霖","18",""],["邱奕磊","18",""],["蘇勁權","18",""],
+        ["林恒劭","12",""],["王姿云","12",""],["黃昱碩","18",""],["陳晴琪","18",""],["賴語新","18","有"],["吳欣璇","18",""],["張庭瑋","18",""],["鍾典霖","18",""],["邱奕磊","18",""],["橫勁權","18",""],
         ["蔡承祐","19",""],["楊子涵","19",""],["林逸晉","19",""],["陳昱璇","19",""],["程聖祐","19",""],["宋佳徽","19",""],["李子源","19",""],["陳鈺棠","19",""],["蔡承哲","19",""],["莊博丞","19",""],["李紫涵","19",""],
         ["許濰讌","20",""],["許世賢","20",""],["梁阿凉","20",""],["謝錫琳","20",""],["許淑玲","20",""],["謝濬安","20",""],["陳靜慧","20",""],["許嘉容","20",""],["許矞凱","20",""],["許智程","20",""],["嚴玉珊","20",""],
         ["蔡燕美","21",""],["蔡燕林","21",""],["林進勇","21",""],["蔡霖燕","21",""],["蔡秀枝","21",""],["劉峰濱","21",""],["劉星妤","21",""],["劉姵岑","21",""],
@@ -305,7 +327,7 @@
         `;
     }
 
-    // 已修正：點擊領餅時，依據賓客個別的喜餅分配數量進行動態加總
+    // 核心邏輯修正：當賓客的領餅狀態(state.gift)為 true 時，根據各個賓客不同的備註，動態累加正確的發放餅數
     function calculateStats() {
         const realGuests = guests.filter(g => !g.isReserve);
         const totalExpect = realGuests.length;
@@ -317,7 +339,7 @@
             if (state.checked) checkedCount++;
             if (state.money) moneyCount++;
             
-            // 如果該名賓客被勾選了「領餅」，則動態判定該增加幾份
+            // 點擊確認發放後的動態計數權重
             if (state.gift) {
                 if (g.giftDetails.includes("三") || g.giftDetails.includes("3")) {
                     giftCount += 3;
